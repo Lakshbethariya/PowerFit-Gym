@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Attendance – PowerFit Gym</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  <style>
+    #calendar { max-width: 900px; margin: 0 auto; }
+    .fc { font-family: var(--font-body); }
+    .fc .fc-toolbar-title { font-family: var(--font-head); text-transform: uppercase; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner" style="max-width:1200px;">
+    <div class="logo">Power<span>Fit</span> Gym</div>
+    <div class="nav-links">
+      <a href="/admin">🏠 Dashboard</a>
+      <a href="/attendance" class="active">📅 Attendance</a>
+      <a href="/">🌐 Home</a>
+      <a href="/logout" class="nav-logout">🚪 Logout</a>
+    </div>
+  </div>
+</nav>
+
+<div class="dash-bg">
+  <div class="container">
+    <div class="dash-header-bar">
+      <div>
+        <h2>📅 Attendance <span>Calendar</span></h2>
+        <p>Admin Panel &nbsp;|&nbsp; PowerFit Gym, Pune</p>
+      </div>
+      <a href="/admin" class="dash-logout">← Back to Admin</a>
+    </div>
+
+    <div class="dash-box">
+      {% for d in data %}
+        <span class="att-data" data-name="{{d[0]}}" data-date="{{d[1]}}" style="display:none;"></span>
+      {% endfor %}
+      <div id="calendar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  let events = [];
+  document.querySelectorAll('.att-data').forEach(item => {
+    events.push({
+      title: item.dataset.name,
+      start: item.dataset.date,
+      backgroundColor: '#1a6b38',
+      borderColor: '#1a6b38'
+    });
+  });
+
+  let calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth',
+    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listWeek' },
+    events: events
+  });
+  calendar.render();
+});
+</script>
+</body>
+</html>

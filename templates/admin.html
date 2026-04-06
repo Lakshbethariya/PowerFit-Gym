@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel – PowerFit Gym</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner" style="max-width:1200px;">
+    <div class="logo">Power<span>Fit</span> Gym</div>
+    <div class="nav-links">
+      <a href="/">🌐 Home</a>
+      <a href="/attendance">📅 Attendance</a>
+      <a href="/logout" class="nav-logout">🚪 Logout</a>
+    </div>
+  </div>
+</nav>
+
+<!-- NOTICE MODAL -->
+<div class="modal-overlay" id="noticeModal">
+  <div class="modal-box">
+    <div class="modal-title">📢 Post a <span>Notice</span></div>
+    <textarea id="noticeText" placeholder="Type your notice here... e.g. Gym will be closed on Sunday for maintenance."></textarea>
+    <div class="modal-actions">
+      <button class="q-btn q-btn-fill" style="margin:0;flex:1;" onclick="postNotice()">Post Notice</button>
+      <button class="q-btn q-btn-outline" style="margin:0;" onclick="closeNoticeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="dash-bg">
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="dash-header-bar">
+      <div>
+        <h2>🛡️ <span>Admin</span> Panel</h2>
+        <p>Admin Dashboard &nbsp;|&nbsp; PowerFit Gym, Pune</p>
+      </div>
+      <a href="/logout" class="dash-logout">🚪 Logout</a>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="dash-cards">
+      <div class="dash-card">
+        <div class="dash-card-icon">👥</div>
+        <div class="dash-card-label">Total Members</div>
+        <div class="dash-card-value">{{ rows|length }}</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-icon">✅</div>
+        <div class="dash-card-label">Active Plans</div>
+        <div class="dash-card-value">{{ active_count }}</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-icon">⚠️</div>
+        <div class="dash-card-label">Expired</div>
+        <div class="dash-card-value">{{ expired_members|length }}</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-icon">🗑️</div>
+        <div class="dash-card-label">Deleted</div>
+        <div class="dash-card-value">{{ deleted_members|length }}</div>
+      </div>
+    </div>
+
+    <!-- MEMBER TABS -->
+    <div class="dash-box">
+      <div class="dash-section-title">Recent <span>Members</span></div>
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchTab('all', this)">All Members</button>
+        <button class="tab-btn" onclick="switchTab('active', this)">Active</button>
+        <button class="tab-btn" onclick="switchTab('expired', this)">Expired</button>
+        <button class="tab-btn" onclick="switchTab('deleted', this)">Deleted</button>
+      </div>
+
+      <!-- ALL -->
+      <div id="tab-all" class="tab-content active">
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>#</th><th>Name</th><th>Age</th><th>Plan</th><th>Joined</th><th>Expires</th><th>Status</th><th>Approve</th><th>Delete</th><th>Attendance</th></tr>
+            </thead>
+            <tbody>
+              {% for r in rows %}
+              <tr>
+                <td>{{ r[0] }}</td>
+                <td><strong>{{ r[1] }}</strong></td>
+                <td>{{ r[2] }}</td>
+                <td>{{ r[3] }}</td>
+                <td>{{ r[4] }}</td>
+                <td>{{ r[5] }}</td>
+                <td>
+                  {% if r[6] == 'active' %}<span class="badge badge-active">Active</span>
+                  {% elif r[6] == 'expired' %}<span class="badge badge-expired">Expired</span>
+                  {% elif r[6] == 'deleted' %}<span class="badge badge-deleted">Deleted</span>
+                  {% else %}<span class="badge badge-pending">Pending</span>{% endif %}
+                </td>
+                <td>
+                  {% if r[6] == 'pending' %}<a href="/approve/{{ r[0] }}" class="action-btn approve-btn">Approve</a>
+                  {% else %}<span style="color:#ccc;font-size:0.8rem;">—</span>{% endif %}
+                </td>
+                <td><a href="/delete/{{ r[0] }}" class="action-btn delete-btn" onclick="return confirm('Delete this member?')">Delete</a></td>
+                <td>
+                  {% if r[6] == 'active' %}<a href="/mark_attendance/{{ r[0] }}" class="action-btn mark-btn">Mark</a>
+                  {% else %}<span style="color:#ccc;font-size:0.8rem;">N/A</span>{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ACTIVE -->
+      <div id="tab-active" class="tab-content">
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>#</th><th>Name</th><th>Plan</th><th>Expires</th><th>Attendance</th></tr></thead>
+            <tbody>
+              {% for r in active_members %}
+              <tr>
+                <td>{{ r[0] }}</td>
+                <td><strong>{{ r[1] }}</strong></td>
+                <td>{{ r[3] }}</td>
+                <td><span class="badge badge-active">{{ r[5] }}</span></td>
+                <td><a href="/mark_attendance/{{ r[0] }}" class="action-btn mark-btn">Mark</a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EXPIRED -->
+      <div id="tab-expired" class="tab-content">
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>#</th><th>Name</th><th>Plan</th><th>Expired On</th></tr></thead>
+            <tbody>
+              {% for r in expired_members %}
+              <tr>
+                <td>{{ r[0] }}</td>
+                <td><strong>{{ r[1] }}</strong></td>
+                <td>{{ r[3] }}</td>
+                <td><span class="badge badge-expired">{{ r[5] }}</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DELETED -->
+      <div id="tab-deleted" class="tab-content">
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>#</th><th>Name</th><th>Plan</th></tr></thead>
+            <tbody>
+              {% for r in deleted_members %}
+              <tr>
+                <td>{{ r[0] }}</td>
+                <td><strong>{{ r[1] }}</strong></td>
+                <td>{{ r[3] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW: Trainer Schedule + Admin Actions -->
+    <div class="dash-row">
+      <!-- Trainer Schedule -->
+      <div class="dash-box" style="margin-bottom:0;">
+        <div class="dash-section-title">Trainer <span>Schedule Today</span></div>
+        <table class="schedule-table">
+          <thead><tr><th>Trainer</th><th>Session</th><th>Time</th><th>Members</th></tr></thead>
+          <tbody>
+            <tr><td>Mangesh Talikote</td><td>Weight Training</td><td>6–8 AM</td><td>12</td></tr>
+            <tr><td>Sumit Patil</td><td>HIIT Class</td><td>8–9 AM</td><td>18</td></tr>
+            <tr><td>Sahil Marne</td><td>Yoga Morning</td><td>7–8 AM</td><td>9</td></tr>
+            <tr><td>Hari Om</td><td>Personal Training</td><td>7–9 PM</td><td>4</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Admin Actions -->
+      <div class="dash-box" style="margin-bottom:0;">
+        <div class="dash-section-title">Admin <span>Actions</span></div>
+
+        <!-- ADD MEMBER BUTTON -->
+        <button class="q-btn q-btn-fill" onclick="toggleAddMember()">➕ &nbsp;Add New Member</button>
+        <a href="/attendance" class="q-btn q-btn-outline">📅 &nbsp;View Attendance</a>
+        <button class="q-btn q-btn-outline" onclick="openNoticeModal()">📢 &nbsp;Post a Notice</button>
+        <button class="q-btn q-btn-sheets" id="sheetsBtn" onclick="exportToSheets()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
+            <rect width="24" height="24" rx="3" fill="#0F9D58"/>
+            <rect x="4" y="6" width="16" height="2" rx="1" fill="white"/>
+            <rect x="4" y="10" width="16" height="2" rx="1" fill="white"/>
+            <rect x="4" y="14" width="16" height="2" rx="1" fill="white"/>
+            <rect x="4" y="18" width="10" height="2" rx="1" fill="white"/>
+          </svg>
+          &nbsp;Export to Google Sheets
+        </button>
+
+        <div style="padding-top:16px;border-top:1px solid var(--border);margin-top:6px;">
+          <div style="font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mid);margin-bottom:10px;">Today's Summary <span style="font-size:0.7rem;color:#aaa;font-weight:400;">(click to edit)</span></div>
+          <div class="summary-grid">
+            <div class="summary-tile">
+              <input class="summary-edit-input" id="checkinInput" type="text" value="86" title="Click to edit check-ins" />
+              <div class="summary-tile-label">Check-ins</div>
+            </div>
+            <div class="summary-tile">
+              <input class="summary-edit-input" id="revenueInput" type="text" value="₹22,400" title="Click to edit revenue" />
+              <div class="summary-tile-label">Collections</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTICES DISPLAY -->
+        <div id="noticesSection" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+          <div style="font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mid);margin-bottom:8px;">📢 Active Notices</div>
+          <div class="notice-list-admin" id="noticeList">
+            <!-- Notices rendered by JS -->
+          </div>
+          <p id="noNoticeMsg" style="color:var(--mid);font-size:0.85rem;">No notices posted yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD MEMBER FORM PANEL (slides open) -->
+    <div class="add-member-panel" id="addMemberPanel">
+      <div class="dash-section-title" style="margin-bottom:20px;">➕ Add New <span>Member</span></div>
+      <form action="/add_member" method="POST">
+        <div class="add-member-form-grid">
+          <div>
+            <label>Full Name *</label>
+            <input name="name" placeholder="e.g. Rahul Sharma" required>
+          </div>
+          <div>
+            <label>Age *</label>
+            <input name="age" type="number" placeholder="e.g. 24" min="10" max="80" required>
+          </div>
+          <div>
+            <label>Select Plan *</label>
+            <select name="plan" required>
+              <option value="">-- Select a plan --</option>
+              <option value="1 Month">1 Month – Basic ₹999</option>
+              <option value="3 Months">3 Months – Standard ₹1,999</option>
+              <option value="6 Months">6 Months – Premium ₹2,499</option>
+              <option value="1 Year">1 Year – Annual ₹2,999</option>
+            </select>
+          </div>
+          <div>
+            <label>Joining Date *</label>
+            <input type="date" name="joining_date" id="adminJoinDate" required>
+          </div>
+          <div class="full" style="display:flex;gap:12px;margin-top:8px;">
+            <button class="btn" type="submit" style="flex:1;">Register Member →</button>
+            <button class="btn btn-outline" type="button" onclick="toggleAddMember()">Cancel</button>
+          </div>
+        </div>
+        <p style="font-size:0.8rem;color:var(--mid);margin-top:12px;">🔐 Default login: username = member's full name, password = <strong>1234</strong></p>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<!-- Hidden member data for JS export -->
+<div id="memberDataStore" style="display:none;">
+{% for r in rows %}
+  <span class="member-row"
+    data-id="{{ r[0] }}"
+    data-name="{{ r[1] }}"
+    data-age="{{ r[2] }}"
+    data-plan="{{ r[3] }}"
+    data-joined="{{ r[4] }}"
+    data-expiry="{{ r[5] }}"
+    data-status="{{ r[6] }}">
+  </span>
+{% endfor %}
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleAddMember() {
+  var panel = document.getElementById('addMemberPanel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('adminJoinDate').value = today;
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+// ── NOTICE SYSTEM ──
+var notices = JSON.parse(localStorage.getItem('gymNotices') || '[]');
+
+function renderNotices() {
+  var list = document.getElementById('noticeList');
+  var msg  = document.getElementById('noNoticeMsg');
+  list.innerHTML = '';
+  if (notices.length === 0) { msg.style.display = 'block'; return; }
+  msg.style.display = 'none';
+  notices.forEach(function(n, i) {
+    var div = document.createElement('div');
+    div.className = 'notice-item-admin';
+    div.innerHTML = '<div><p>' + n.text + '</p><small>' + n.date + '</small></div>'
+      + '<button class="notice-del-btn" onclick="deleteNotice(' + i + ')" title="Delete">🗑️</button>';
+    list.appendChild(div);
+  });
+}
+
+function openNoticeModal() {
+  document.getElementById('noticeModal').classList.add('open');
+  document.getElementById('noticeText').focus();
+}
+
+function closeNoticeModal() {
+  document.getElementById('noticeModal').classList.remove('open');
+  document.getElementById('noticeText').value = '';
+}
+
+function postNotice() {
+  var text = document.getElementById('noticeText').value.trim();
+  if (!text) { alert('Please type a notice first.'); return; }
+  var now = new Date();
+  notices.unshift({ text: text, date: 'Posted: ' + now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) });
+  localStorage.setItem('gymNotices', JSON.stringify(notices));
+  renderNotices();
+  closeNoticeModal();
+}
+
+function deleteNotice(i) {
+  if (!confirm('Delete this notice?')) return;
+  notices.splice(i, 1);
+  localStorage.setItem('gymNotices', JSON.stringify(notices));
+  renderNotices();
+}
+
+// Dismiss modal on overlay click
+document.getElementById('noticeModal').addEventListener('click', function(e) {
+  if (e.target === this) closeNoticeModal();
+});
+
+renderNotices();
+
+// ── GOOGLE SHEETS EXPORT ──
+function exportToSheets() {
+  var btn = document.getElementById('sheetsBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span> &nbsp;Preparing...';
+
+  var rows = document.querySelectorAll('#memberDataStore .member-row');
+
+  // TSV for clipboard (Google Sheets pastes TSV perfectly)
+  var tsvLines = [['#', 'Name', 'Age', 'Plan', 'Joining Date', 'Expiry Date', 'Status'].join('\t')];
+  rows.forEach(function(r) {
+    tsvLines.push([r.dataset.id, r.dataset.name, r.dataset.age, r.dataset.plan, r.dataset.joined, r.dataset.expiry, r.dataset.status].join('\t'));
+  });
+  var tsvContent = tsvLines.join('\n');
+
+  // Attempt clipboard copy
+  var copied = false;
+  var tempEl = document.createElement('textarea');
+  tempEl.value = tsvContent;
+  tempEl.style.cssText = 'position:fixed;top:-999px;opacity:0;';
+  document.body.appendChild(tempEl);
+  tempEl.select();
+  try { copied = document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(tempEl);
+
+  if (!copied && navigator.clipboard) {
+    navigator.clipboard.writeText(tsvContent).then(function() { copied = true; }).catch(function(){});
+  }
+
+  // CSV download as backup
+  var csvLines = [['#', 'Name', 'Age', 'Plan', 'Joining Date', 'Expiry Date', 'Status'].join(',')];
+  rows.forEach(function(r) {
+    csvLines.push([r.dataset.id, '"'+r.dataset.name+'"', r.dataset.age, '"'+r.dataset.plan+'"', r.dataset.joined, r.dataset.expiry, r.dataset.status].join(','));
+  });
+  var blob = new Blob([csvLines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  var csvUrl = URL.createObjectURL(blob);
+  var dlLink = document.createElement('a');
+  dlLink.href = csvUrl;
+  dlLink.download = 'powerfit_members_' + new Date().toISOString().split('T')[0] + '.csv';
+  dlLink.click();
+  URL.revokeObjectURL(csvUrl);
+
+  setTimeout(function() {
+    window.open('https://sheets.new', '_blank');
+    showSheetsToast(copied);
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect width="24" height="24" rx="3" fill="#0F9D58"/><rect x="4" y="6" width="16" height="2" rx="1" fill="white"/><rect x="4" y="10" width="16" height="2" rx="1" fill="white"/><rect x="4" y="14" width="16" height="2" rx="1" fill="white"/><rect x="4" y="18" width="10" height="2" rx="1" fill="white"/></svg>&nbsp;Export to Google Sheets';
+  }, 700);
+}
+
+function showSheetsToast(copied) {
+  var existing = document.getElementById('sheetsToast');
+  if (existing) existing.remove();
+  var toast = document.createElement('div');
+  toast.id = 'sheetsToast';
+  toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:18px 24px;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.35);border-left:5px solid #0F9D58;z-index:9999;max-width:500px;width:92%;font-size:0.88rem;line-height:1.7;';
+  toast.innerHTML = copied
+    ? '<strong style="color:#0F9D58;font-size:1rem;">✅ Google Sheets opened!</strong><br>All member data is copied to your clipboard.<br>In the new Sheet: <strong>click cell A1 → press Ctrl+V</strong> (or ⌘V on Mac) to paste all data instantly.<br><span style="color:#888;font-size:0.78rem;display:block;margin-top:6px;">A CSV backup was also downloaded to your device.</span>'
+    : '<strong style="color:#0F9D58;font-size:1rem;">📄 Google Sheets opened + CSV downloaded!</strong><br>In the Sheet: go to <strong>File → Import → Upload</strong> and select the downloaded CSV file.<br><span style="color:#888;font-size:0.78rem;display:block;margin-top:6px;">Tip: Allow clipboard access in your browser settings for one-click paste next time.</span>';
+  toast.innerHTML += '<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#666;font-size:1.1rem;cursor:pointer;">✕</button>';
+  toast.style.position = 'fixed';
+  document.body.appendChild(toast);
+  setTimeout(function() { if (document.getElementById('sheetsToast')) toast.remove(); }, 12000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PowerFit Gym – Pune</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div style="background:#1a1a1a;padding:8px 20px;">
+      {% for category, message in messages %}
+        {% if category=='error' %}
+          <div style="max-width:1100px;margin:0 auto;padding:8px 14px;border-radius:4px;font-size:0.9rem;background:#fde8e8;color:#b91c1c;">{{ message }}</div>
+        {% else %}
+          <div style="max-width:1100px;margin:0 auto;padding:8px 14px;border-radius:4px;font-size:0.9rem;background:#e6f9ee;color:#1a6b38;">{{ message }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Power<span>Fit</span> Gym</div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#" onclick="showPage('home')" id="ln-home" class="active">Home</a></li>
+      <li><a href="#" onclick="showPage('about')" id="ln-about">About</a></li>
+      <li><a href="#" onclick="showPage('plans')" id="ln-plans">View Plans</a></li>
+      <li><a href="#" onclick="showPage('contact')" id="ln-contact">Contact</a></li>
+      {% if session.get('user') %}
+        {% if session.get('role') == 'admin' %}
+          <li><a href="/admin" style="background:var(--orange);color:#fff;border-radius:4px;">🛡️ Admin</a></li>
+        {% else %}
+          <li><a href="/dashboard" style="background:var(--orange);color:#fff;border-radius:4px;">🏋️ Dashboard</a></li>
+        {% endif %}
+        <li><a href="/logout">Logout</a></li>
+      {% else %}
+        <li><a href="#" onclick="showPage('login')" id="ln-login" style="background:var(--orange);color:#fff;border-radius:4px;">Login</a></li>
+      {% endif %}
+    </ul>
+    <button class="hamburger" onclick="toggleNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ HOME ══ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-tag">Welcome to PowerFit Gym – Pune</div>
+      <h1 class="hero-title">Transform<br>Your <span>Body</span></h1>
+      <p class="hero-sub">Join PowerFit Gym and start your fitness journey today. Expert trainers, modern equipment, and a supportive community await you.</p>
+      <a href="#" class="btn" onclick="showPage('plans')">View Plans &rarr;</a>
+    </div>
+  </div>
+
+  <div class="features-strip">
+    <div class="container">
+      <div class="feat-item"><div class="feat-icon">🏋️</div><div class="feat-title">Strength Training</div><p class="feat-desc">Build muscle and increase strength with our fully equipped weight training zone and expert coaches.</p></div>
+      <div class="feat-item"><div class="feat-icon">🏃</div><div class="feat-title">Cardio &amp; Fitness</div><p class="feat-desc">Improve endurance and burn calories with our wide range of cardio machines and group fitness classes.</p></div>
+      <div class="feat-item"><div class="feat-icon">🥗</div><div class="feat-title">Diet &amp; Nutrition</div><p class="feat-desc">Get a personalised diet plan from our certified nutritionist to support your training goals.</p></div>
+    </div>
+  </div>
+
+  <!-- ══ TRAINER SHOWCASE — above Why Choose Us ══ -->
+  <section class="trainer-showcase">
+    <div class="trainer-showcase-header">
+      <p class="section-title">Meet Our <span>Head Trainer</span></p>
+      <div class="underline" style="margin:0 auto 16px;"></div>
+      <p>The beast behind your results. Train under the guidance of PowerFit's finest.</p>
+    </div>
+
+    <div class="trainer-cards-row">
+      <div class="trainer-showcase-card">
+        <img src="{{ url_for('static', filename='images/trainer1.jpeg') }}" alt="Hari Om – Trainer" />
+        <div class="trainer-card-overlay">
+          <div class="trainer-card-name">Hari Om</div>
+          <div class="trainer-card-role">Strength &amp; Conditioning</div>
+          <div class="trainer-card-badge">Head Trainer</div>
+        </div>
+      </div>
+      <div class="trainer-showcase-card">
+        <img src="{{ url_for('static', filename='images/trainer2.jpeg') }}" alt="Hari Om – Training" />
+        <div class="trainer-card-overlay">
+          <div class="trainer-card-name">Hari Om</div>
+          <div class="trainer-card-role">Back &amp; Physique</div>
+          <div class="trainer-card-badge">Elite Coach</div>
+        </div>
+      </div>
+      <div class="trainer-showcase-card">
+        <img src="{{ url_for('static', filename='images/trainer3.jpeg') }}" alt="Hari Om – Night Training" />
+        <div class="trainer-card-overlay">
+          <div class="trainer-card-name">Hari Om</div>
+          <div class="trainer-card-role">Night Warrior</div>
+          <div class="trainer-card-badge">No Days Off</div>
+        </div>
+      </div>
+      <div class="trainer-showcase-card">
+        <img src="{{ url_for('static', filename='images/trainer4.jpeg') }}" alt="Hari Om – Power Pose" />
+        <div class="trainer-card-overlay">
+          <div class="trainer-card-name">Hari Om</div>
+          <div class="trainer-card-role">Personal Trainer</div>
+          <div class="trainer-card-badge">Results Driven</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trainer-quote-banner">
+      <div class="trainer-quote-text">
+        "Pain is temporary. Glory is <em>forever</em>. Every rep, every drop of sweat is a promise you make to yourself — and I am here to make sure you <em>keep it</em>."
+      </div>
+      <div class="trainer-quote-credit">Hari Om &nbsp;·&nbsp; Head Trainer, PowerFit Gym</div>
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE US -->
+  <div class="section" style="background:#fff;">
+    <div class="container">
+      <p class="section-title">Why Choose <span>Us?</span></p>
+      <div class="underline"></div>
+      <p class="section-sub">We are more than just a gym. PowerFit is a community where beginners and athletes train together under expert guidance.</p>
+      <div class="why-grid">
+        <div class="why-card"><div class="why-num">500+</div><div class="why-label">Active Members</div></div>
+        <div class="why-card"><div class="why-num">10+</div><div class="why-label">Expert Trainers</div></div>
+        <div class="why-card"><div class="why-num">5 Yrs</div><div class="why-label">Experience</div></div>
+        <div class="why-card"><div class="why-num">6AM–10PM</div><div class="why-label">Open Daily</div></div>
+      </div>
+    </div>
+  </div>
+</div><!-- /home -->
+
+<!-- ══ ABOUT ══ -->
+<div id="page-about" class="page">
+  <div class="section" style="background:#fff;">
+    <div class="container">
+      <p class="section-title">About <span>PowerFit</span></p>
+      <div class="underline"></div>
+      <div class="about-grid">
+        <div class="about-img"><img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=700&q=80" alt="Inside PowerFit Gym" /></div>
+        <div class="about-text">
+          <p>PowerFit Gym is committed to creating a positive and energetic fitness environment for everyone. Whether you are a beginner or an experienced athlete, we provide the right space and support to help you stay consistent.</p>
+          <p>Our gym is spread over 5,000 sq ft with modern equipment, dedicated zones for cardio, weight training, yoga, and functional training. We believe fitness is a lifestyle, not just a hobby.</p>
+          <p>Our team of certified trainers works closely with every member to build personalised workout and diet plans that actually deliver results.</p>
+          <a href="#" class="btn" onclick="showPage('plans')" style="margin-top:8px">See Our Plans</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="background:var(--grey);">
+    <div class="container">
+      <p class="section-title">Mission <span>&amp; Vision</span></p>
+      <div class="underline"></div>
+      <div class="mv-grid">
+        <div class="mv-card"><h3>🎯 Our Mission</h3><p>To provide an affordable, welcoming, and results-driven fitness environment where every person — regardless of age or fitness level — can achieve their health goals.</p></div>
+        <div class="mv-card"><h3>🔭 Our Vision</h3><p>To become Pune's most trusted fitness community by building long-term relationships with our members and helping them lead healthier, stronger, and happier lives.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="background:#fff;">
+    <div class="container">
+      <p class="section-title">Meet Our <span>Trainers</span></p>
+      <div class="underline"></div>
+      <div class="trainers-grid">
+        <div class="trainer-card">
+          <div class="trainer-img" style="background:#111;overflow:hidden;">
+            <img src="{{ url_for('static', filename='images/trainer1.jpeg') }}" alt="Hari Om" style="width:100%;height:180px;object-fit:cover;object-position:top;" />
+          </div>
+          <div class="trainer-body">
+            <div class="trainer-name">HARI OM</div>
+            <div class="trainer-role">Strength &amp; Conditioning</div>
+            <div class="trainer-desc">8 years experience. NASM certified. Specialises in muscle building and weight loss.</div>
+          </div>
+        </div>
+        <div class="trainer-card"><div class="trainer-img">🧘</div><div class="trainer-body"><div class="trainer-name">SUMIT CHAUDHARI</div><div class="trainer-role">Yoga &amp; Flexibility</div><div class="trainer-desc">RYT-500 certified yoga instructor with 6 years experience in mobility and stress relief.</div></div></div>
+        <div class="trainer-card"><div class="trainer-img">🥊</div><div class="trainer-body"><div class="trainer-name">SAHIL MARNE</div><div class="trainer-role">Cardio &amp; HIIT</div><div class="trainer-desc">Former state-level athlete. 7 years experience in HIIT and fat-loss coaching.</div></div></div>
+        <div class="trainer-card"><div class="trainer-img">💪</div><div class="trainer-body"><div class="trainer-name">MANGESH TALIKOTE</div><div class="trainer-role">Weight Training</div><div class="trainer-desc">Specialist in powerlifting and hypertrophy training with 5+ years experience.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="background:var(--grey);">
+    <div class="container">
+      <p class="section-title">Our <span>Facilities</span></p>
+      <div class="underline"></div>
+      <div class="facilities-list">
+        <div class="facility-item"><span>🏋️</span> Free Weights Zone</div>
+        <div class="facility-item"><span>🏃</span> Cardio Machines</div>
+        <div class="facility-item"><span>🧘</span> Yoga Studio</div>
+        <div class="facility-item"><span>🚿</span> Changing Rooms</div>
+        <div class="facility-item"><span>💧</span> Drinking Water RO</div>
+        <div class="facility-item"><span>❄️</span> AC Environment</div>
+        <div class="facility-item"><span>📱</span> Personal Training App</div>
+        <div class="facility-item"><span>🅿️</span> Free Parking</div>
+        <div class="facility-item"><span>🔒</span> Secure Lockers</div>
+        <div class="facility-item"><span>📺</span> LED Screen &amp; Music</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /about -->
+
+<!-- ══ PLANS ══ -->
+<div id="page-plans" class="page">
+  <div class="section">
+    <div class="container">
+      <p class="section-title">Our Membership <span>Plans</span></p>
+      <div class="underline"></div>
+      <p class="section-sub">Choose a plan that fits your lifestyle. Click <strong>Get Started</strong> on any plan to register instantly.</p>
+
+      <div class="plans-grid">
+        <div class="plan-card">
+          <div class="plan-head"><div class="plan-badge">Starter</div><div class="plan-name">Basic</div><div class="plan-price"><sup>₹</sup>999<sub>/month</sub></div></div>
+          <div class="plan-body">
+            <ul class="plan-features">
+              <li><span class="tick">✔</span> Gym access (6AM – 10PM)</li>
+              <li><span class="tick">✔</span> Cardio &amp; Weight zone</li>
+              <li><span class="tick">✔</span> Locker room access</li>
+              <li><span class="tick">✔</span> 1 Group class per week</li>
+              <li><span class="tick">✔</span> Basic fitness assessment</li>
+              <li><span class="cross">✘</span> Personal trainer sessions</li>
+              <li><span class="cross">✘</span> Diet/nutrition plan</li>
+              <li><span class="cross">✘</span> Pool / Sauna access</li>
+            </ul>
+            <button class="btn btn-outline" style="width:100%;text-align:center;display:block" onclick="openJoinForm('1 Month', 'Basic – ₹999/month')">Get Started</button>
+          </div>
+        </div>
+
+        <div class="plan-card popular">
+          <div class="plan-head"><div class="plan-badge">Most Popular</div><div class="plan-name">Standard</div><div class="plan-price"><sup>₹</sup>1,999<sub>/month</sub></div></div>
+          <div class="plan-body">
+            <ul class="plan-features">
+              <li><span class="tick">✔</span> All Basic features</li>
+              <li><span class="tick">✔</span> Unlimited group classes</li>
+              <li><span class="tick">✔</span> 4 Personal trainer sessions/month</li>
+              <li><span class="tick">✔</span> Basic diet guidance</li>
+              <li><span class="tick">✔</span> Monthly progress check</li>
+              <li><span class="tick">✔</span> Access to yoga studio</li>
+              <li><span class="cross">✘</span> Custom meal plan</li>
+              <li><span class="cross">✘</span> Pool / Sauna access</li>
+            </ul>
+            <button class="btn" style="width:100%;text-align:center;display:block" onclick="openJoinForm('3 Months', 'Standard – ₹1,999/month')">Get Started</button>
+          </div>
+        </div>
+
+        <div class="plan-card">
+          <div class="plan-head"><div class="plan-badge">Best Value</div><div class="plan-name">Premium</div><div class="plan-price"><sup>₹</sup>2,999<sub>/month</sub></div></div>
+          <div class="plan-body">
+            <ul class="plan-features">
+              <li><span class="tick">✔</span> All Standard features</li>
+              <li><span class="tick">✔</span> Unlimited PT sessions</li>
+              <li><span class="tick">✔</span> Custom diet + meal plan</li>
+              <li><span class="tick">✔</span> Weekly body analysis</li>
+              <li><span class="tick">✔</span> Pool &amp; Sauna access</li>
+              <li><span class="tick">✔</span> Supplement guidance</li>
+              <li><span class="tick">✔</span> Priority class booking</li>
+              <li><span class="tick">✔</span> 1 Guest pass per month</li>
+            </ul>
+            <button class="btn btn-outline" style="width:100%;text-align:center;display:block" onclick="openJoinForm('1 Year', 'Premium – ₹2,999/month')">Get Started</button>
+          </div>
+        </div>
+      </div>
+
+      <p style="text-align:center;margin-top:28px;color:var(--mid);font-size:0.88rem;">
+        📞 Contact us at <strong style="color:var(--orange)">+91 9356153421</strong> for annual discounts or group memberships.
+      </p>
+
+      <!-- JOIN FORM -->
+      <div class="join-section" id="joinSection">
+        <div class="join-card" id="joinCard">
+          <div class="join-card-title">Join <span>PowerFit</span> Gym</div>
+          <div class="join-card-sub">Fill in your details below to register. Admin approval will activate your membership.</div>
+          <div class="join-selected-plan" id="joinPlanLabel">Selected Plan</div>
+
+          <form action="/add_member" method="POST">
+            <input type="hidden" name="plan" id="joinPlanInput" value="1 Month">
+
+            <label>Full Name *</label>
+            <input name="name" placeholder="e.g. Rahul Sharma" required>
+
+            <label>Age *</label>
+            <input name="age" type="number" placeholder="e.g. 24" min="10" max="80" required>
+
+            <label>Membership Duration</label>
+            <select name="plan" id="joinDurationSelect">
+              <option value="1 Month">1 Month</option>
+              <option value="3 Months">3 Months</option>
+              <option value="6 Months">6 Months</option>
+              <option value="1 Year">1 Year</option>
+            </select>
+
+            <label>Joining Date *</label>
+            <input type="date" name="joining_date" id="joinDate" required>
+
+            <p class="hint">🔐 Your default login password will be <strong>1234</strong>. Use your full name as username.</p>
+
+            <button class="btn" type="submit" style="width:100%;text-align:center;justify-content:center;">Register Now &rarr;</button>
+          </form>
+
+          <div style="text-align:center;margin-top:14px;">
+            <a href="#" onclick="closeJoinForm()" style="font-size:0.85rem;color:var(--mid);">✕ Cancel</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /plans -->
+
+<!-- ══ CONTACT ══ -->
+<div id="page-contact" class="page">
+  <div class="section">
+    <div class="container">
+      <p class="section-title">Contact <span>Us</span></p>
+      <div class="underline"></div>
+      <p class="section-sub">Have a question or want to join? Fill the form below or reach out directly. We reply within 24 hours.</p>
+      <div class="contact-grid">
+        <div class="contact-form-box">
+          <div class="form-title">Send Us a Message</div>
+          <div class="form-group"><label>Your Name *</label><input type="text" id="c-name" placeholder="e.g. Rahul Sharma" /></div>
+          <div class="form-group"><label>Email Address *</label><input type="email" id="c-email" placeholder="rahul@gmail.com" /></div>
+          <div class="form-group"><label>Your Message *</label><textarea id="c-msg" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:4px;font-family:var(--font-body);font-size:0.95rem;resize:vertical;min-height:120px;outline:none;" placeholder="Tell us about your fitness goals..."></textarea></div>
+          <button class="btn" onclick="submitContactForm()" style="width:100%">Send Message</button>
+          <div class="form-msg" id="form-msg">✅ Thank you! We will get back to you soon.</div>
+        </div>
+        <div class="contact-info">
+          <h3>Get In <span style="color:var(--orange)">Touch</span></h3>
+          <div class="info-item"><div class="info-icon">📞</div><div><div class="info-label">Phone</div><div class="info-value">+91 9356153421<br>+91 8767754667</div></div></div>
+          <div class="info-item"><div class="info-icon">✉️</div><div><div class="info-label">Email</div><div class="info-value">powerfit@gmail.com</div></div></div>
+          <div class="info-item"><div class="info-icon">📍</div><div><div class="info-label">Address</div><div class="info-value">Shop No. 12, near Ajeenkya DY Patil University,<br>Pune – 412105, Maharashtra</div></div></div>
+          <div class="info-item"><div class="info-icon">🕐</div><div><div class="info-label">Working Hours</div><div class="info-value">Monday – Saturday: 6:00 AM – 10:00 PM</div></div></div>
+          <div class="map-placeholder"><div class="map-inner"><span>🗺️</span><p>PowerFit Gym<br>Ajeenkya DY Patil University, Pune</p><a href="https://maps.app.goo.gl/dR3XaMH9M8HbLko88" target="_blank" class="btn" style="font-size:0.82rem;padding:8px 18px;margin-top:6px">Open in Google Maps</a></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /contact -->
+
+<!-- ══ LOGIN ══ -->
+<div id="page-login" class="page">
+  <div class="login-bg">
+    <div class="login-card">
+      <div class="login-card-top">
+        <div class="logo">Power<span>Fit</span> Gym</div>
+        <h2>Member Login</h2>
+        <p>Sign in to access your account</p>
+      </div>
+      <div class="login-card-body">
+        <div class="login-divider"><span>Select Login Type</span></div>
+        <div class="role-selector">
+          <div class="role-option">
+            <input type="radio" name="role" id="role-customer" value="customer" checked />
+            <label class="role-label" for="role-customer"><span>🏃</span> Customer</label>
+          </div>
+          <div class="role-option">
+            <input type="radio" name="role" id="role-admin" value="admin" />
+            <label class="role-label" for="role-admin"><span>🛡️</span> Admin</label>
+          </div>
+        </div>
+
+        <div class="login-divider"><span>Enter Your Details</span></div>
+        <div class="error-box" id="login-error">❌ Invalid username or password. Please try again.</div>
+
+        <form action="/login_check" method="POST" onsubmit="return validateLogin()">
+          <div class="form-group">
+            <label>Username *</label>
+            <input type="text" id="l-username" name="username" placeholder="Your full name (e.g. Rahul Sharma)" required />
+            <div class="form-error" id="l-user-err">Please enter your username.</div>
+          </div>
+          <div class="form-group">
+            <label>Password *</label>
+            <input type="password" id="l-password" name="password" placeholder="Enter your password" required />
+            <div class="form-error" id="l-pass-err">Password must be at least 4 characters.</div>
+          </div>
+          <div style="text-align:right;margin-top:-8px;margin-bottom:20px;">
+            <a href="#" style="font-size:0.83rem;color:var(--orange);font-weight:700;" onclick="alert('Please contact us at +91 9356153421 to reset your password.')">Forgot Password?</a>
+          </div>
+          <button type="submit" class="btn" style="width:100%;font-size:1rem;padding:13px;text-align:center;justify-content:center;">Login →</button>
+        </form>
+
+        <div style="margin-top:14px;background:#fff8f5;border:1px dashed #f0c0a0;border-radius:4px;padding:10px 14px;font-size:0.82rem;color:var(--mid);">
+          <strong style="color:var(--black);">Hint:</strong> Use your <strong>full name</strong> as username. Default password: <strong>1234</strong>. Admin: <strong>admin / 1234</strong>.
+        </div>
+
+        <div class="login-footer-note">
+          Not a member? <a onclick="showPage('plans')">View our Plans →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /login -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">Power<span>Fit</span> Gym</div>
+        <p>Your fitness journey starts here. Join our community in Pune and transform your body and mind with expert guidance.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a onclick="showPage('home')">Home</a></li>
+          <li><a onclick="showPage('about')">About Us</a></li>
+          <li><a onclick="showPage('plans')">View Plans</a></li>
+          <li><a onclick="showPage('contact')">Contact</a></li>
+          <li><a onclick="showPage('login')">Login</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul><li>+91 9356153421</li><li>powerfit@gmail.com</li><li>Mon–Sat: 6AM–10PM</li></ul>
+      </div>
+      <div class="footer-col">
+        <h4>Location</h4>
+        <ul><li>Shop No. 12,</li><li>near Ajeenkya DY Patil</li><li>Pune – 412105</li><li>Maharashtra, India</li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2026 PowerFit Gym, Pune. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    var pg = document.getElementById('page-' + id);
+    if (pg) pg.classList.add('active');
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    var link = document.getElementById('ln-' + id);
+    if (link) link.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('navLinks').classList.remove('open');
+    if (id !== 'plans') closeJoinForm();
+  }
+
+  function toggleNav() {
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+
+  function openJoinForm(planValue, planLabel) {
+    document.getElementById('joinPlanInput').value = planValue;
+    document.getElementById('joinPlanLabel').textContent = '✔ ' + planLabel;
+    var sel = document.getElementById('joinDurationSelect');
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === planValue) { sel.selectedIndex = i; break; }
+    }
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('joinDate').value = today;
+    var js = document.getElementById('joinSection');
+    js.classList.add('visible');
+    setTimeout(function() { js.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+  }
+
+  function closeJoinForm() {
+    document.getElementById('joinSection').classList.remove('visible');
+  }
+
+  function submitContactForm() {
+    var name  = document.getElementById('c-name').value.trim();
+    var email = document.getElementById('c-email').value.trim();
+    var msg   = document.getElementById('c-msg').value.trim();
+    if (!name || !email || !msg) { alert('Please fill in all fields before sending.'); return; }
+    if (!/\S+@\S+\.\S+/.test(email)) { alert('Please enter a valid email address.'); return; }
+    var msgEl = document.getElementById('form-msg');
+    msgEl.style.display = 'block';
+    document.getElementById('c-name').value = '';
+    document.getElementById('c-email').value = '';
+    document.getElementById('c-msg').value = '';
+    setTimeout(function() { msgEl.style.display = 'none'; }, 5000);
+  }
+
+  function validateLogin() {
+    var u = document.getElementById('l-username').value.trim();
+    var p = document.getElementById('l-password').value.trim();
+    var ok = true;
+    document.getElementById('l-user-err').style.display = 'none';
+    document.getElementById('l-pass-err').style.display = 'none';
+    if (!u) { document.getElementById('l-user-err').style.display = 'block'; ok = false; }
+    if (!p || p.length < 4) { document.getElementById('l-pass-err').style.display = 'block'; ok = false; }
+    return ok;
+  }
+
+  (function() {
+    var params = new URLSearchParams(window.location.search);
+    var page = params.get('page');
+    if (page) showPage(page);
+    var error = params.get('error');
+    if (error) {
+      var errBox = document.getElementById('login-error');
+      if (errBox) errBox.classList.add('show');
+    }
+    var msg = params.get('msg');
+    if (msg === 'member_added') {
+      showPage('plans');
+    }
+  })();
+</script>
+</body>
+</html>
