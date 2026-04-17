@@ -4,7 +4,6 @@ A full-stack web application for managing a gym — built with **Flask + SQLite*
 
 ---
 
-## 🖼️ Screenshots
 
 > Home page with trainer showcase, member dashboard, and admin panel.
 
