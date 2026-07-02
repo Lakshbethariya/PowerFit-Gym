@@ -224,5 +224,5 @@ All styles use CSS custom properties defined in `base.css`:
 ---
 
 ## 👨‍💻 Built By
-laksh bethariya 
-linkedin:https://www.linkedin.com/in/laksh-bethariya/
+Laksh Bethariya 
+Linkedin:https://www.linkedin.com/in/laksh-bethariya/
